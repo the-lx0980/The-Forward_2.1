@@ -11,10 +11,11 @@ from bot import Bot
 from asyncio.exceptions import TimeoutError
 from database import save_data
 import logging
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.ERROR)
 
-limit_no=""               
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+
+
 skip_no=""
 caption=""
 channel_type=""
@@ -43,41 +44,12 @@ async def run(bot, message):
             break
         else:
             await chat.reply_text("Wrong URL")
-            continue
-
-    if 'joinchat' in channel:
-        global channel_type
-        channel_type="private"
-        try:
-            await bot.USER.join_chat(channel)
-        except UserAlreadyParticipant:
-            pass
-        except InviteHashExpired:
-            await chat.reply_text("Wrong URL or User Banned in channel.")
-            return
-        while True:
-            try:
-                id = await bot.ask(text = "Since this is a Private channel I need Channel id, Please send me channel ID\n\nIt should be something like <code>-100xxxxxxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
-                channel=id.text
-            except TimeoutError:
-                await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
-                return
-            channel=id.text
-            if channel.startswith("-100"):
-                global channel_id_
-                channel_id_=int(channel)
-                break
-            else:
-                await chat.reply_text("Wrong Channel ID")
-                continue
-
-            
-    else:
-        #global channel_type
-        channel_type="public"
-        channel_id = re.search(r"t.me.(.*)", channel)
-        #global channel_id_
-        channel_id_=channel_id.group(1)
+            continue           
+    # global channel_type
+    channel_type="public"
+    channel_id = re.search(r"t.me.(.*)", channel)
+    # global channel_id_
+    channel_id_=channel_id.group(1)
 
     while True:
         try:
@@ -143,8 +115,6 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     elif query.data == "audio":
         filter=MessageMediaTyp.AUDIO
     caption=None
-
-
     await query.message.delete()
     while True:
         try:
@@ -168,39 +138,37 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     FROM=channel_id_
     try:
         async for MSG in bot.USER.search_messages(chat_id=FROM,offset=skip_no,limit=limit_no,filter=filter):
-            if channel_type == "public":
-                methord="bot"
-                channel=FROM
-                msg=await bot.get_messages(FROM, MSG.id)
-            elif channel_type == "private":
-                methord="user"
-                channel=str(FROM)
-                msg=await bot.USER.get_messages(FROM, MSG.id)
+        async for message in bot.iter_messages(FROM, lst_msg_id, skip_no):
+            if message.empty:
+                continue                
             msg_caption=""
             if caption is not None:
                 msg_caption=caption
             elif msg.caption:
-                msg_caption=msg.caption
+                msg_caption=msg.caption 
+
             if filter in [MessageMediaTyp.DOCUMENT,
                           MessageMediaTyp.VIDEO,
                           MessageMediaTyp.AUDIO,
                           MessageMediaTyp.PHOTO]:
                 for file_type in (MessageMediaTyp.DOCUMENT, MessageMediaTyp.VIDEO, MessageMediaTyp.AUDIO, MessageMediaTyp.PHOTO):
-                    media = getattr(msg, msg.media.value, None)
-                    if media is not None:
-                        file_type = file_type
-                        id=media.file_id
-                        break
+                    if msg.media:
+                        media = getattr(msg, msg.media.value, None)
+                        if media is not None:
+                            file_type = file_type
+                            id=media.file_id
+                            break
             if filter == "empty":
                 for file_type in [MessageMediaTyp.DOCUMENT,
                                   MessageMediaTyp.VIDEO,
                                   MessageMediaTyp.AUDIO,
                                   MessageMediaTyp.PHOTO]:
-                    media = getattr(msg, msg.media.value, None)
-                    if media is not None:
-                        file_type = file_type
-                        id=media.file_id
-                        break
+                    if msg.media:
+                        media = getattr(msg, msg.media.value, None)
+                        if media is not None:
+                            file_type = file_type
+                            id=media.file_id
+                            break
                 else:
                     id=f"{FROM}_{msg.id}"
                     file_type="others"
