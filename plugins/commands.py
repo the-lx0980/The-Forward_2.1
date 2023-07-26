@@ -27,6 +27,7 @@ async def start(client, message):
         text=START_MSG.format(
                 message.from_user.first_name),
         reply_markup=buttons
+    )
 
 
 
