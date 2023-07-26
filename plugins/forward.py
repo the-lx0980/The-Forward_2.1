@@ -138,8 +138,4 @@ async def forward(bot, message):
         status.remove(1)
     except:
         pass
-    try:
-        status.remove(2)
-    except:
-        pass
     MessageCount=0
