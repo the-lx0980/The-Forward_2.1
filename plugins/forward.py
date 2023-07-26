@@ -114,7 +114,6 @@ async def forward(bot, message):
                     'channel': channel,
                     'message_id': message_id,
                     'file_type': file_type,
-                    'methord': "bot",
                     'use': "forward"
                 })
 
