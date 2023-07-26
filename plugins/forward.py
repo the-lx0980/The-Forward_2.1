@@ -57,7 +57,7 @@ async def forward(bot, message):
             channel=msg.channel
             file_id=msg.id
             message_id=msg.message_id
-            methord = msg.methord
+            methord = "bot"
             caption = msg.caption
             file_type = msg.file_type
             chat_id=Config.TO_CHANNEL
