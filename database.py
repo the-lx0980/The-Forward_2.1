@@ -17,7 +17,6 @@ class Data(Document):
     file_type = fields.StrField()
     message_id = fields.IntField()
     use = fields.StrField()
-    methord = fields.StrField()
     caption = fields.StrField()
 
     class Meta:
@@ -30,7 +29,6 @@ async def save_data(id, channel, message_id, methord, caption, file_type):
             use = "forward",
             channel=channel,
             message_id=message_id,
-            methord=methord,
             caption=caption,
             file_type=file_type
         )
