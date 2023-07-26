@@ -5,7 +5,7 @@ import asyncio
 import random
 import pytz
 from datetime import datetime
-from database import save_data, get_search_results
+from database import get_search_results
 
 IST = pytz.timezone('Asia/Kolkata')
 MessageCount = 0
