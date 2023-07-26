@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
-
+end_msg_id=""
 skip_no=""
 caption=""
 channel_type=""
@@ -76,6 +76,19 @@ async def run(bot, message):
         except:
             await LIMIT.reply_text("Thats an invalid ID, It should be an integer.")
             continue
+    while True:
+        try:
+            end_id = await bot.ask(text = "Send me forward ending msg id", chat_id = message.from_user.id, filters=filters.text, timeout=30)
+            print(end_id.text)
+        except TimeoutError:
+            return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
+        try:
+            global limit_no
+            end_msg_id=int(end_id.text)
+            break
+        except:
+            await end_id.reply_text("Thats an invalid ID, It should be an integer.")
+            continue
 
     buttons=InlineKeyboardMarkup(
         [
@@ -133,10 +146,11 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     msg_count = 0
     mcount = 0
     FROM=channel_id_
+    lst_msg_id=end_msg_id
     try:
-        async for MSG in bot.USER.search_messages(chat_id=FROM,offset=skip_no,limit=limit_no,filter=filter):
-        async for message in bot.iter_messages(FROM, lst_msg_id, skip_no):
-            if message.empty:
+        # async for MSG in bot.USER.search_messages(chat_id=FROM,offset=skip_no,limit=limit_no,filter=filter):
+        async for MSG in bot.iter_messages(FROM, lst_msg_id, skip_no):
+            if msg.empty:
                 continue                
             msg_caption=""
             if caption is not None:
