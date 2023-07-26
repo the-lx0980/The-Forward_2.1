@@ -1,54 +1,123 @@
-from pymongo.errors import DuplicateKeyError
-from umongo import Instance, Document, fields
-from motor.motor_asyncio import AsyncIOMotorClient
-from marshmallow.exceptions import ValidationError
 from config import Config
-DATABASE_URI, DATABASE_NAME, COLLECTION_NAME = Config.DATABASE_URI, Config.DATABASE_NAME, Config.COLLECTION_NAME
+from pyrogram import Client, filters, enums
+from pyrogram.errors import FloodWait
+import asyncio
+import random
+import pytz
+from datetime import datetime
+from database import save_data, get_search_results
 
-client = AsyncIOMotorClient(DATABASE_URI)
-db = client[DATABASE_NAME]
-instance = Instance(db)
+IST = pytz.timezone('Asia/Kolkata')
+MessageCount = 0
+BOT_STATUS = "0"
+status = set(int(x) for x in BOT_STATUS.split())
+OWNER = int(Config.OWNER_ID)
 
+@Client.on_message(filters.command("forward"))
+async def forward(bot, message):
+    if 1 in status:
+        await message.reply_text("A task is already running.")
+        return
 
-@instance.register
-class Data(Document):
-    id = fields.StrField(attribute='_id')
-    channel = fields.StrField()
-    file_type = fields.StrField()
-    message_id = fields.IntField()
-    use = fields.StrField()
-    caption = fields.StrField()
+    m = await bot.send_message(chat_id=OWNER, text="Started Forwarding")
 
-    class Meta:
-        collection_name = COLLECTION_NAME
+    batch_size = 10  # Change this value according to your requirement
+    while await get_search_results().count() != 0:
+        data = await get_search_results().to_list(length=batch_size)
+        if not data:
+            break
 
-async def save_data(id, channel, message_id, methord, caption, file_type):
-    try:
-        data = Data(
-            id=id,
-            use = "forward",
-            channel=channel,
-            message_id=message_id,
-            caption=caption,
-            file_type=file_type
-        )
-    except ValidationError:
-        print('Error occurred while saving file in database')
-    try:
-        await data.commit()
-    except DuplicateKeyError:
-        print("Already saved in Database")
-    else:
+        for msg in data:
+            channel = msg['channel']
+            file_id = msg['_id']
+            message_id = msg['message_id']
+            method = "bot"
+            caption = msg['caption']
+            file_type = msg['file_type']
+            chat_id = Config.TO_CHANNEL
+
+            try:
+                if file_type in (enums.MessageMediaTyp.DOCUMENT,
+                                 enums.MessageMediaTyp.VIDEO, 
+                                 enums.MessageMediaTyp.AUDIO, 
+                                 enums.MessageMediaTyp.PHOTO):
+                    await bot.send_cached_media(
+                        chat_id=chat_id,
+                        file_id=file_id,
+                        caption=caption
+                    )
+                else:
+                    await bot.copy_message(
+                        chat_id=chat_id,
+                        from_chat_id=channel,
+                        parse_mode=enums.ParseMode.MARKDOWN,
+                        caption=caption,
+                        message_id=message_id
+                    )
+                await asyncio.sleep(1)
+
+                try:
+                    status.add(1)
+                except:
+                    pass
+
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                if file_type in (enums.MessageMediaTyp.DOCUMENT, 
+                                 enums.MessageMediaTyp.VIDEO, 
+                                 enums.MessageMediaTyp.AUDIO, 
+                                 enums.MessageMediaTyp.PHOTO):
+                    await bot.send_cached_media(
+                        chat_id=chat_id,
+                        file_id=file_id,
+                        caption=caption
+                    )
+                else:
+                    await bot.copy_message(
+                        chat_id=chat_id,
+                        from_chat_id=channel,
+                        parse_mode=enums.ParseMode.MARKDOWN,
+                        caption=caption,
+                        message_id=message_id
+                    )
+                await asyncio.sleep(1)
+
+            except Exception as e:
+                print(e)
+                pass
+
+            collection.delete_one({
+                'channel': channel,
+                'message_id': message_id,
+                'file_type': file_type,
+                'method': "bot",
+                'use': "forward"
+            })
+
+            MessageCount += 1
+
         try:
-            print("Messsage saved in DB")
-        except:
+            datetime_ist = datetime.now(IST)
+            ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
+            await m.edit(text=f"Total Forwarded: <code>{MessageCount}</code>\nForwarded Using: Bot\nSleeping for {1} Seconds\nLast Forwarded at {ISTIME}")
+        except Exception as e:
+            print(e)
+            await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
             pass
 
-async def get_search_results():
-    filter = {'use': "forward"}
-    cursor = Data.find(filter)
-    cursor.sort('$natural', -1)
-    cursor.skip(0).limit(1)
-    Messages = await cursor.to_list(length=1)
-    return Messages
+    print("Finished")
+
+    try:
+        await m.edit(text=f'Successfully Forwarded {MessageCount} messages')
+    except Exception as e:
+        await bot.send_message(OWNER, e)
+        print(e)
+        pass
+
+    try:
+        status.remove(1)
+    except:
+        pass
+
+    MessageCount = 0
 
