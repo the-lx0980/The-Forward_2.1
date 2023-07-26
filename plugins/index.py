@@ -1,6 +1,7 @@
 import pytz
 from datetime import datetime
-from pyrogram import Client, filters
+from pyrogram import Client, filters,
+from pyrogram.enums import MessageMediaTyp
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.errors import FloodWait
 from pyrogram.errors.exceptions.bad_request_400 import InviteHashExpired, UserAlreadyParticipant
@@ -132,15 +133,15 @@ async def run(bot, message):
 async def cb_handler(bot: Client, query: CallbackQuery):
     filter=""
     if query.data == "docs":
-        filter="document"
+        filter=MessageMediaTyp.DOCUMENT
     elif query.data == "all":
         filter="empty"
     elif query.data == "photos":
-        filter="photo"
+        filter=MessageMediaTyp.PHOTO
     elif query.data == "videos":
-        filter="video"
+        filter=MessageMediaTyp.VIDEO
     elif query.data == "audio":
-        filter="audio"
+        filter=MessageMediaTyp.AUDIO
     caption=None
 
 
@@ -170,35 +171,41 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             if channel_type == "public":
                 methord="bot"
                 channel=FROM
-                msg=await bot.get_messages(FROM, MSG.message_id)
+                msg=await bot.get_messages(FROM, MSG.id)
             elif channel_type == "private":
                 methord="user"
                 channel=str(FROM)
-                msg=await bot.USER.get_messages(FROM, MSG.message_id)
+                msg=await bot.USER.get_messages(FROM, MSG.id)
             msg_caption=""
             if caption is not None:
                 msg_caption=caption
             elif msg.caption:
                 msg_caption=msg.caption
-            if filter in ("document", "video", "audio", "photo"):
-                for file_type in ("document", "video", "audio", "photo"):
-                    media = getattr(msg, file_type, None)
+            if filter in [MessageMediaTyp.DOCUMENT,
+                          MessageMediaTyp.VIDEO,
+                          MessageMediaTyp.AUDIO,
+                          MessageMediaTyp.PHOTO]:
+                for file_type in (MessageMediaTyp.DOCUMENT, MessageMediaTyp.VIDEO, MessageMediaTyp.AUDIO, MessageMediaTyp.PHOTO):
+                    media = getattr(msg, msg.media.value, None)
                     if media is not None:
                         file_type = file_type
                         id=media.file_id
                         break
             if filter == "empty":
-                for file_type in ("document", "video", "audio", "photo"):
-                    media = getattr(msg, file_type, None)
+                for file_type in [MessageMediaTyp.DOCUMENT,
+                                  MessageMediaTyp.VIDEO,
+                                  MessageMediaTyp.AUDIO,
+                                  MessageMediaTyp.PHOTO]:
+                    media = getattr(msg, msg.media.value, None)
                     if media is not None:
                         file_type = file_type
                         id=media.file_id
                         break
                 else:
-                    id=f"{FROM}_{msg.message_id}"
+                    id=f"{FROM}_{msg.id}"
                     file_type="others"
             
-            message_id=msg.message_id
+            message_id=msg.id
             try:
                 await save_data(id, channel, message_id, methord, msg_caption, file_type)
             except Exception as e:
@@ -216,7 +223,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     await m.edit(text=f"Total Indexed : <code>{msg_count}</code>\nCurrent skip_no:<code>{new_skip_no}</code>\nLast edited at {ISTIME}")
                     mcount -= 100
                 except FloodWait as e:
-                    print(f"Floodwait {e.x}")
+                    print(f"Floodwait {e.value}")  
                     pass
                 except Exception as e:
                     await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
