@@ -18,7 +18,6 @@ logger.setLevel(logging.ERROR)
 end_msg_id = ""
 skip_no = ""
 caption = ""
-channel_type = ""
 channel_id_ = ""
 IST = pytz.timezone('Asia/Kolkata')
 OWNER = int(Config.OWNER_ID)
@@ -208,7 +207,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             message_id = msg.id
 
             try:
-                await save_data(id, channel, message_id, methord, msg_caption, file_type)
+                await save_data(id, channel, message_id, msg_caption, file_type)
             except Exception as e:
                 print(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
