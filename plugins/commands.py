@@ -49,6 +49,7 @@ async def help(client, message):
     await client.send_message(
         chat_id=message.chat.id,
         text=HELP_MSG
+    )
 
 
 @Client.on_callback_query(filters.regex(r'^help$'))
