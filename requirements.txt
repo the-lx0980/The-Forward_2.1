@@ -1,7 +1,7 @@
-TgCrypto
-pyrogram
+TgCrypto==1.2.5
+pyrogram==2.0.106
 Dnspython
-pyromod
+pyromod==1.5
 umongo==2.3.0
 motor==2.3.0
 pytz
