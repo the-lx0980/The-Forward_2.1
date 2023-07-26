@@ -1,122 +1,32 @@
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 from config import Config
-from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait
-import asyncio
-import random
-import pytz
-from datetime import datetime
-from database import get_search_results
 
-IST = pytz.timezone('Asia/Kolkata')
-MessageCount = 0
-BOT_STATUS = "0"
-status = set(int(x) for x in BOT_STATUS.split())
-OWNER = int(Config.OWNER_ID)
+DATABASE_URI, DATABASE_NAME, COLLECTION_NAME = Config.DATABASE_URI, Config.DATABASE_NAME, Config.COLLECTION_NAME
 
-@Client.on_message(filters.command("forward"))
-async def forward(bot, message):
-    if 1 in status:
-        await message.reply_text("A task is already running.")
-        return
+client = MongoClient(DATABASE_URI)
+db = client[DATABASE_NAME]
+collection = db[COLLECTION_NAME]
 
-    m = await bot.send_message(chat_id=OWNER, text="Started Forwarding")
-
-    batch_size = 10  # Change this value according to your requirement
-    while await get_search_results().count() != 0:
-        data = await get_search_results().to_list(length=batch_size)
-        if not data:
-            break
-
-        for msg in data:
-            channel = msg['channel']
-            file_id = msg['_id']
-            message_id = msg['message_id']
-            method = "bot"
-            caption = msg['caption']
-            file_type = msg['file_type']
-            chat_id = Config.TO_CHANNEL
-
-            try:
-                if file_type in (enums.MessageMediaTyp.DOCUMENT,
-                                 enums.MessageMediaTyp.VIDEO, 
-                                 enums.MessageMediaTyp.AUDIO, 
-                                 enums.MessageMediaTyp.PHOTO):
-                    await bot.send_cached_media(
-                        chat_id=chat_id,
-                        file_id=file_id,
-                        caption=caption
-                    )
-                else:
-                    await bot.copy_message(
-                        chat_id=chat_id,
-                        from_chat_id=channel,
-                        parse_mode=enums.ParseMode.MARKDOWN,
-                        caption=caption,
-                        message_id=message_id
-                    )
-                await asyncio.sleep(1)
-
-                try:
-                    status.add(1)
-                except:
-                    pass
-
-            except FloodWait as e:
-                await asyncio.sleep(e.x)
-                if file_type in (enums.MessageMediaTyp.DOCUMENT, 
-                                 enums.MessageMediaTyp.VIDEO, 
-                                 enums.MessageMediaTyp.AUDIO, 
-                                 enums.MessageMediaTyp.PHOTO):
-                    await bot.send_cached_media(
-                        chat_id=chat_id,
-                        file_id=file_id,
-                        caption=caption
-                    )
-                else:
-                    await bot.copy_message(
-                        chat_id=chat_id,
-                        from_chat_id=channel,
-                        parse_mode=enums.ParseMode.MARKDOWN,
-                        caption=caption,
-                        message_id=message_id
-                    )
-                await asyncio.sleep(1)
-
-            except Exception as e:
-                print(e)
-                pass
-
-            collection.delete_one({
-                'channel': channel,
-                'message_id': message_id,
-                'file_type': file_type,
-                'use': "forward"
-            })
-
-            MessageCount += 1
-
-        try:
-            datetime_ist = datetime.now(IST)
-            ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
-            await m.edit(text=f"Total Forwarded: <code>{MessageCount}</code>\nForwarded Using: Bot\nSleeping for {1} Seconds\nLast Forwarded at {ISTIME}")
-        except Exception as e:
-            print(e)
-            await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
-            pass
-
-    print("Finished")
-
+async def save_data(id, channel, message_id, method, caption, file_type):
+    data = {
+        '_id': id,
+        'channel': channel,
+        'file_type': file_type,
+        'message_id': message_id,
+        'use': 'forward',
+        'caption': caption
+    }
+    
     try:
-        await m.edit(text=f'Successfully Forwarded {MessageCount} messages')
+        collection.insert_one(data)
+        print("Message saved in the database")
+    except DuplicateKeyError:
+        print("Already saved in the database")
     except Exception as e:
-        await bot.send_message(OWNER, e)
-        print(e)
-        pass
+        print(f"Error occurred while saving file in the database: {e}")
 
-    try:
-        status.remove(1)
-    except:
-        pass
-
-    MessageCount = 0
-
+async def get_search_results():
+    filter = {'use': "forward"}
+    messages = collection.find(filter).sort('$natural', -1).limit(1)
+    return messages
