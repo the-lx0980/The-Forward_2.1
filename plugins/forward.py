@@ -1,21 +1,19 @@
 from config import Config
-from pyrogram import Client, emoji, filters, enums 
+from pyrogram import Client, emoji, filters, enums
 from database import get_search_results
 from database import Data
-from config import Config
 import asyncio
 from pyrogram.errors import FloodWait
 import random
 from pyrogram.errors.exceptions.bad_request_400 import FileReferenceEmpty, FileReferenceExpired, MediaEmpty
 import pytz
 from datetime import datetime
-  
 
 IST = pytz.timezone('Asia/Kolkata')
 MessageCount = 0
 BOT_STATUS = "0"
 status = set(int(x) for x in (BOT_STATUS).split())
-OWNER=int(Config.OWNER_ID)
+OWNER = int(Config.OWNER_ID)
 
 @Client.on_message(filters.command("status"))
 async def count(bot, m):
@@ -33,7 +31,6 @@ async def total(bot, message):
     except Exception as e:
         await msg.edit(f'Error: {e}')
 
-        
 @Client.on_message(filters.command('cleardb'))
 async def clrdb(bot, message):
     msg = await message.reply("Clearing files from DB...", quote=True)
@@ -42,25 +39,26 @@ async def clrdb(bot, message):
         await msg.edit(f'Cleared DB')
     except Exception as e:
         await msg.edit(f'Error: {e}')
-                
-        
 
 @Client.on_message(filters.command("forward"))
 async def forward(bot, message):
     if 1 in status:
         await message.reply_text("A task is already running.")
-        return     
-    m=await bot.send_message(chat_id=OWNER, text="Started Forwarding")
+        return
+
+    m = await bot.send_message(chat_id=OWNER, text="Started Forwarding")
+
     while await Data.count_documents() != 0:
         data = await get_search_results()
         for msg in data:
-            channel=msg.channel
-            file_id=msg.id
-            message_id=msg.message_id
+            channel = msg.channel
+            file_id = msg.id
+            message_id = msg.message_id
             methord = "bot"
             caption = msg.caption
             file_type = msg.file_type
-            chat_id=Config.TO_CHANNEL
+            chat_id = Config.TO_CHANNEL
+
             if methord == "bot":
                 try:
                     if file_type in (enums.MessageMediaTyp.DOCUMENT,
@@ -71,23 +69,24 @@ async def forward(bot, message):
                             chat_id=chat_id,
                             file_id=file_id,
                             caption=caption
-                            )
+                        )
                     else:
                         await bot.copy_message(
                             chat_id=chat_id,
                             from_chat_id=channel,
-                            parse_mode=enums.ParseMode.MARKDOWN, 
+                            parse_mode=enums.ParseMode.MARKDOWN,
                             caption=caption,
                             message_id=message_id
-                            )
+                        )
                     await asyncio.sleep(1)
+
                     try:
                         status.add(1)
                     except:
                         pass
 
                 except FloodWait as e:
-                    await asyncio.sleep(e.value)  
+                    await asyncio.sleep(e.value)
                     if file_type in (enums.MessageMediaTyp.DOCUMENT, 
                                      enums.MessageMediaTyp.VIDEO, 
                                      enums.MessageMediaTyp.AUDIO, 
@@ -96,7 +95,7 @@ async def forward(bot, message):
                             chat_id=chat_id,
                             file_id=file_id,
                             caption=caption
-                            )
+                        )
                     else:
                         await bot.copy_message(
                             chat_id=chat_id,
@@ -104,38 +103,45 @@ async def forward(bot, message):
                             parse_mode=enums.ParseMode.MARKDOWN,
                             caption=caption,
                             message_id=message_id
-                            )
+                        )
                     await asyncio.sleep(1)
-
 
                 except Exception as e:
                     print(e)
                     pass
+
                 await Data.collection.delete_one({
                     'channel': channel,
                     'message_id': message_id,
                     'file_type': file_type,
                     'methord': "bot",
                     'use': "forward"
-                    })
+                })
+
                 MessageCount += 1
+
                 try:
                     datetime_ist = datetime.now(IST)
                     ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
-                    await m.edit(text=f"Total Forwarded : <code>{MessageCount}</code>\nForwarded Using: Bot\nSleeping for {1} Seconds\nLast Forwarded at {ISTIME}")
+                    await m.edit(text=f"Total Forwarded: <code>{MessageCount}</code>\nForwarded Using: Bot\nSleeping for {1} Seconds\nLast Forwarded at {ISTIME}")
                 except Exception as e:
                     print(e)
                     await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
-                    pass            
+                    pass
+
     print("Finished")
+
     try:
-        await m.edit(text=f'Succesfully Forwarded {MessageCount} messages')
+        await m.edit(text=f'Successfully Forwarded {MessageCount} messages')
     except Exception as e:
         await bot.send_message(OWNER, e)
         print(e)
         pass
+
     try:
         status.remove(1)
     except:
         pass
-    MessageCount=0
+
+    MessageCount = 0
+
