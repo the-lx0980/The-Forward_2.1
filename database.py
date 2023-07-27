@@ -57,7 +57,7 @@ async def save_data(id, channel, message_id, caption, file_type):
 async def get_search_results():
     filter = {'use': "forward"}
     cursor = Data.find(filter)
-    cursor.sort('$natural', -1)
+    cursor.sort('$natural', 1)
     cursor.skip(0).limit(1)
     Messages = await cursor.to_list(length=1)
     return Messages
