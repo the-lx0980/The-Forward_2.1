@@ -1,6 +1,6 @@
 from config import Config
 from pyrogram import Client, filters, enums
-from database import Data, save_data, get_search_results
+from database import get_search_results, collection
 import asyncio
 from pyrogram.errors import FloodWait
 import random
@@ -108,7 +108,7 @@ async def forward(bot, message):
                 print(e)
                 pass
 
-            await Data.collection.delete_one({
+            await collection.delete_one({
                 'channel': channel,
                 'message_id': message_id,
                 'file_type': file_type,
