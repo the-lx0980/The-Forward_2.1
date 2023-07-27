@@ -110,7 +110,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     if query.data == "index":
         filter = "media"
     elif query.data == "cancel":
-        return await message.delete()
+        return await query.message.delete()
         
     await query.message.delete()
 
