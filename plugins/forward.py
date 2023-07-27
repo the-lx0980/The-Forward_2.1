@@ -50,7 +50,7 @@ async def forward(bot, message):
     while await Data.count_documents() != 0:
         data = await get_search_results()
         for msg in data:
-            to_chat=msg.to_chat
+            to_chat=Config.TO_CHANNEL 
             file_id=msg.id
             caption=msg.caption
             try:
