@@ -134,7 +134,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             if not msg.media:
                 unsupported += 1
                 continue
-            caption = f"**{msg.caption}**"
+            caption = msg.caption
             if filter == "media":
                 if msg.media:
                     if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO, MessageMediaType.STICKER]: 
