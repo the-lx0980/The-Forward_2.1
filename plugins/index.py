@@ -143,13 +143,13 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
                         media = getattr(msg, msg.media.value, None)
                         id=media.file_id
-                        file_type="media"
+                        file_type=media.file_type
                         
             if filter == "empty":
                 if msg.media:
                     media = getattr(msg, msg.media.value, None)
                     id=media.file_id
-                    file_type="allmedia"
+                    file_type=media.file_type
                 else:
                     id = msg.id
                     file_type="others"
