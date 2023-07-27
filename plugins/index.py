@@ -115,16 +115,10 @@ async def run(bot, message):
 @Client.on_callback_query()
 async def cb_handler(bot: Client, query: CallbackQuery):
     filter = ""
-    if query.data == "docs":
-        filter = MessageMediaType.DOCUMENT
+    if query.data == "media":
+        filter = "media"
     elif query.data == "all":
         filter = "empty"
-    elif query.data == "photos":
-        filter = MessageMediaType.PHOTO
-    elif query.data == "videos":
-        filter = MessageMediaType.VIDEO
-    elif query.data == "audio":
-        filter = MessageMediaType.AUDIO
     caption = None
     await query.message.delete()
 
@@ -144,25 +138,25 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             if msg.empty:
                 continue
             msg_caption = msg.caption
-            if filter in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
+            if filter == "media":
+                if msg.media:
+                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
+                        media = getattr(msg, msg.media.value, None)
+                        file_id=media.file_id
+                        file_type="media"
+                        
+            if filter == "empty":
                 if msg.media:
                     media = getattr(msg, msg.media.value, None)
-                    file_type = msg.media.value
-                    id = media.file_id
-            elif filter == "empty":
-                for media_type in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
-                    if msg.media:
-                        media = getattr(msg, msg.media.value, None)
-                        file_type = msg.media.value
-                        id = media.file_id
-                        break
+                    file_id=media.file_id
+                    file_type="allmedia"
                 else:
-                    id = f"{FROM}_{msg.id}"
-                    file_type = "others"
-
+                    id = msg.id
+                    file_type="others"
+                    
             message_id = msg.id
             try:
-                await save_data(id, channel, message_id, msg_caption, file_type)
+                await save_data(id, channel, message_id, msg_caption, file_id, file_type)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
