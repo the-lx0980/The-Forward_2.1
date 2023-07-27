@@ -50,12 +50,9 @@ async def forward(bot, message):
     while await Data.count_documents() != 0:
         data = await get_search_results()
         for msg in data:
-            channel=msg.channel
+            to_chat=msg.to_chat
             file_id=msg.id
-            message_id=msg.message_id
-            caption = msg.caption
-            file_type = msg.file_type
-            chat_id=Config.TO_CHANNEL
+            caption=msg.caption
             try:
                 try:
                     await bot.send_cached_media(
