@@ -92,9 +92,9 @@ async def run(bot, message):
 
     buttons = InlineKeyboardMarkup(
         [[
-            InlineKeyboardButton("All Messages", callback_data="all")
+            InlineKeyboardButton("Index Media", callback_data="index")
         ],[
-            InlineKeyboardButton("only Media", callback_data="medias"),
+            InlineKeyboardButton("Cancel", callback_data="cancel"),  
         ]]
     )
 
@@ -107,10 +107,11 @@ async def run(bot, message):
 @Client.on_callback_query()
 async def cb_handler(bot: Client, query: CallbackQuery):
     filter = ""
-    if query.data == "medias":
+    if query.data == "index":
         filter = "media"
-    elif query.data == "all":
-        filter = "empty"
+    elif query.data == "cancel":
+        return await message.delete()
+        
     await query.message.delete()
 
     m = await bot.send_message(
@@ -121,23 +122,17 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     msg_count = 0
     mcount = 0
     deleted = 0
+    unsupported = 0
     lst_msg_id=END_MSG_ID.get(user_id)
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
-    channel=CURRENT
-    await bot.send_message(
-        text = f"""
-    lst_msg_id = {lst_msg_id}
-    CURRENT = {CURRENT}
-    channel = {channel} 
-    chat = {chat}
-        """,
-        chat_id = query.from_user.id
-    )
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
                 deleted += 1
+                continue
+            if not msg.media:
+                unsupported += 1
                 continue
             caption = msg.caption
             message_id = None
@@ -145,21 +140,9 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                 if msg.media:
                     if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
                         media = getattr(msg, msg.media.value, None)
-                        id=media.file_id
-                        file_type="media"
-                        
-            if filter == "empty":
-                if msg.media:
-                    media = getattr(msg, msg.media.value, None)
-                    id=media.file_id
-                    file_type="media"
-                if not msg.media:        
-                    id="Bxbdhu737bbhdhue"
-                    file_type="others"
-                    message_id=msg.id
-                                
+                        id=media.file_id                 
             try:
-                await save_data(id, channel, message_id, caption, file_type)
+                await save_data(id, caption)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
@@ -184,7 +167,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     logger.exception(e)
                     pass
 
-        await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.")
+        await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.\n\nNon Media Files: {unsupported}\nDeleted Message: {deleted}")
 
     except Exception as e:
         logger.exception(e)
