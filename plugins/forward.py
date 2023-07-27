@@ -82,7 +82,7 @@ async def forward(bot, message):
                     pass
 
             except FloodWait as e:
-                await asyncio.sleep(e.x)
+                await asyncio.sleep(e.value)
                 if file_type in (enums.MessageMediaTyp.DOCUMENT, 
                                  enums.MessageMediaTyp.VIDEO, 
                                  enums.MessageMediaTyp.AUDIO, 
