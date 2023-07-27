@@ -20,19 +20,22 @@ instance = Instance.from_db(database)
 @instance.register
 class Data(Document):
     id = fields.StrField(attribute='_id')
-    channel = fields.StrField()
-    file_type = fields.StrField()
-    message_id = fields.IntField()
-    use = fields.StrField()
-    caption = fields.StrField()
+    id_s = fields.StrField(required=True)
+    channel = fields.StrField(required=True)
+    file_type = fields.StrField(required=True)
+    message_id = fields.IntField(required=True)
+    use = fields.StrField(required=True)
+    caption = fields.StrField(required=True)
 
     class Meta:
         collection_name = COLLECTION_NAME
 
 async def save_data(id, channel, message_id, caption, file_type):
+    id = file_id
     try:
         data = Data(
-            id=id,
+            id="64646",
+            id_s=file_id,
             use = "forward",
             channel=channel,
             message_id=message_id,
