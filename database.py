@@ -3,7 +3,10 @@ from umongo import Instance, Document, fields
 from motor.motor_asyncio import AsyncIOMotorClient
 from marshmallow.exceptions import ValidationError
 from config import Config
-DATABASE_URI, DATABASE_NAME, COLLECTION_NAME = Config.DATABASE_URI, Config.DATABASE_NAME, Config.COLLECTION_NAME
+
+DATABASE_URI = "mongodb+srv://theprotullen:YHjSjKnLi8COtkZP@cluster0.eodxogb.mongodb.net/?retryWrites=true&w=majority"
+DATABASE_NAME = "forward_media" 
+COLLECTION_NAME = "media-collection" 
 
 client = AsyncIOMotorClient(DATABASE_URI)
 db = client[DATABASE_NAME]
