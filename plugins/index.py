@@ -43,7 +43,7 @@ async def run(bot, message):
         pattern = ".*https://t.me/.*"
         result = re.match(pattern, channel, flags=re.IGNORECASE)
         if result:
-            print(channel)
+            logger.info(channel)
             break
         else:
             await chat.reply_text("Wrong URL")
@@ -59,7 +59,7 @@ async def run(bot, message):
                 filters=filters.text,
                 timeout=30
             )
-            print(SKIP.text)
+            logger.info(SKIP.text)
         except TimeoutError:
             return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
 
@@ -207,7 +207,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             try:
                 await save_data(id, channel, message_id, msg_caption, file_type)
             except Exception as e:
-                print(e)
+                logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
                 pass
 
@@ -227,7 +227,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     pass
                 except Exception as e:
                     await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
-                    print(e)
+                    logger.exception(e)
                     pass
 
         await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.")
