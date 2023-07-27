@@ -1,12 +1,11 @@
+import logging, pytz, random, asyncio
 from config import Config
 from pyrogram import Client, filters, enums
 from database import get_search_results, Data
-import asyncio
 from pyrogram.errors import FloodWait
-import random
-from pyrogram.errors.exceptions.bad_request_400 import FileReferenceEmpty, FileReferenceExpired, MediaEmpty
-import pytz
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 IST = pytz.timezone('Asia/Kolkata')
 MessageCount = 0
@@ -104,7 +103,7 @@ async def forward(bot, message):
                 await asyncio.sleep(1)
 
             except Exception as e:
-                print(e)
+                logger.exception(e)
                 pass
 
             await Data.collection.delete_one({
@@ -121,17 +120,17 @@ async def forward(bot, message):
                 ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
                 await m.edit(text=f"Total Forwarded: <code>{MessageCount}</code>\nForwarded Using: Bot\nSleeping for {1} Seconds\nLast Forwarded at {ISTIME}")
             except Exception as e:
-                print(e)
+                logger.exception(e)
                 await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
                 pass
 
-    print("Finished")
+    logger.info("Finished")
 
     try:
         await m.edit(text=f'Successfully Forwarded {MessageCount} messages')
     except Exception as e:
         await bot.send_message(OWNER, e)
-        print(e)
+        logger.exception(e)
         pass
 
     try:
