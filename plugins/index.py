@@ -151,7 +151,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             caption = m_caption
             if filter == "media":
                 if msg.media:
-                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO, MessageMediaTyp.STICKER]: 
+                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]: 
                         media = getattr(msg, msg.media.value, None)
                         id=media.file_id
             try:
