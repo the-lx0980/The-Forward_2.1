@@ -40,6 +40,7 @@ async def clrdb(bot, message):
 
 @Client.on_message(filters.command("forward"))
 async def forward(bot, message):
+    global MessageCount
     if 1 in status:
         await message.reply_text("A task is already running.")
         return
@@ -105,7 +106,7 @@ async def forward(bot, message):
                 })
 
             MessageCount += 1
-
+            
             try:
                 datetime_ist = datetime.now(IST)
                 ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
