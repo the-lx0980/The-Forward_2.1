@@ -8,7 +8,7 @@ client = MongoClient(DATABASE_URI)
 db = client[DATABASE_NAME]
 collection = db[COLLECTION_NAME]
 
-async def save_data(id, channel, message_id, method, caption, file_type):
+async def save_data(id, channel, message_id, caption, file_type):
     data = {
         '_id': id,
         'channel': channel,
