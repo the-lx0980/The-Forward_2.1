@@ -77,8 +77,9 @@ async def forward(bot, message):
                 pass
 
             await Data.collection.delete_one({
-                'to_chat': to_chat,
-                'use': 'forward'
+                'use': 'forward',
+                'caption': caption,
+                'id': file_id
                 })
 
             MessageCount += 1
