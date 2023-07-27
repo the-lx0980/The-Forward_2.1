@@ -154,9 +154,8 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO, MessageMediaTyp.STICKER]: 
                         media = getattr(msg, msg.media.value, None)
                         id=media.file_id
-            msg_id = msg.id
             try:
-                await save_data(id, caption, msg_id)
+                await save_data(id, caption)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
