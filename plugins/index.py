@@ -124,8 +124,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     lst_msg_id=END_MSG_ID.get(user_id)
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
-    channel=chat
-    
+    channel=CURRENT
     await bot.send_message(
         text = f"""
     lst_msg_id = {lst_msg_id}
@@ -141,6 +140,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                 deleted += 1
                 continue
             caption = msg.caption
+            message_id = None
             if filter == "media":
                 if msg.media:
                     if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
@@ -152,12 +152,12 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                 if msg.media:
                     media = getattr(msg, msg.media.value, None)
                     id=media.file_id
-                    file_type="media" 
-                else:
-                    id = f"{channel}_{msg.id}"
+                    file_type="media"
+                if not msg.media:        
+                    id=None
                     file_type="others"
-                    
-            message_id = msg.id
+                    message_id=msg.id
+                                
             try:
                 await save_data(id, channel, message_id, caption, file_type)
             except Exception as e:
