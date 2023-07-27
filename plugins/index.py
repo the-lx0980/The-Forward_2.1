@@ -152,7 +152,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     id=media.file_id
                     file_type=media.file_type
                 else:
-                    id = msg.id
+                    id = f"{channel}_{msg.id}"
                     file_type="others"
                     
             message_id = msg.id
