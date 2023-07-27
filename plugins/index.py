@@ -47,7 +47,7 @@ async def run(bot, message):
     chat_usr = channel_id.group(1)
     try:
         chat = await bot.get_chat(chat_usr)
-    Exception as e:
+    except Exception as e:
         logger.exception(e)
         return await message.reply(f"{e}")
     channel_id_= chat.username
