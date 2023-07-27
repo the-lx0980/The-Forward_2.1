@@ -91,19 +91,11 @@ async def run(bot, message):
             continue
 
     buttons = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton("All Messages", callback_data="all")
-            ],
-            [
-                InlineKeyboardButton("Document", callback_data="docs"),
-                InlineKeyboardButton("Photos", callback_data="photos")
-            ],
-            [
-                InlineKeyboardButton("Videos", callback_data="videos"),
-                InlineKeyboardButton("Audios", callback_data="audio")
-            ]
-        ]
+        [[
+            InlineKeyboardButton("All Messages", callback_data="all")
+        ],[
+            InlineKeyboardButton("only Media", callback_data="medias"),
+        ]]
     )
 
     await bot.send_message(
@@ -115,11 +107,10 @@ async def run(bot, message):
 @Client.on_callback_query()
 async def cb_handler(bot: Client, query: CallbackQuery):
     filter = ""
-    if query.data == "media":
+    if query.data == "medias":
         filter = "media"
     elif query.data == "all":
         filter = "empty"
-    caption = None
     await query.message.delete()
 
     m = await bot.send_message(
@@ -133,6 +124,16 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
     channel=chat
+    
+    await bot.send_message(
+        text = f"""
+    lst_msg_id = {lst_msg_id}
+    CURRENT = {CURRENT}
+    channel = {channel} 
+    chat = {chat}
+        """,
+        chat_id = query.from_user.id
+    )
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
