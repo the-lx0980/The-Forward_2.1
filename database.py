@@ -4,14 +4,17 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from marshmallow.exceptions import ValidationError
 from config import Config
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 DATABASE_URI = "mongodb+srv://theprotullen:YHjSjKnLi8COtkZP@cluster0.eodxogb.mongodb.net/?retryWrites=true&w=majority"
 DATABASE_NAME = "forward_media" 
 COLLECTION_NAME = "media-collection" 
 
-client = AsyncIOMotorClient(DATABASE_URI)
-db = client[DATABASE_NAME]
-instance = Instance(db)
 
+client = AsyncIOMotorClient(DATABASE_URI)
+database = client[DATABASE_NAME]
+instance = Instance.from_db(database)
 
 @instance.register
 class Data(Document):
