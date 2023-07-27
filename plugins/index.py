@@ -134,14 +134,29 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             if not msg.media:
                 unsupported += 1
                 continue
-            caption = msg.caption
+            if msg.video:
+                file_name = msg.video.file_name
+            elif msg.document:
+                file_name = msg.document.file_name
+            elif msg.audio:
+                file_name = msg.audio.file_name 
+            else:
+                file_name = None                
+            if msg.caption:
+                m_caption = msg.caption
+            else:
+                m_caption = file_name
+            if not m_caption:
+                m_caption = "No Caption"
+            caption = m_caption
             if filter == "media":
                 if msg.media:
-                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO, MessageMediaType.STICKER]: 
+                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO, MessageMediaTyp.STICKER]: 
                         media = getattr(msg, msg.media.value, None)
-                        id=media.file_id                 
+                        id=media.file_id
+            msg_id = msg.id
             try:
-                await save_data(id, caption)
+                await save_data(id, caption, msg_id)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
