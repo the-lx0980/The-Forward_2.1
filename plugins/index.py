@@ -120,6 +120,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     user_id = query.from_user.id
     msg_count = 0
     mcount = 0
+    deleted = 0
     lst_msg_id=END_MSG_ID.get(user_id)
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
@@ -137,6 +138,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
+                deleted += 1
                 continue
             caption = msg.caption
             if filter == "media":
@@ -172,7 +174,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                 try:
                     datetime_ist = datetime.now(IST)
                     ISTIME = datetime_ist.strftime("%I:%M:%S %p - %d %B %Y")
-                    await m.edit(text=f"Total Indexed: <code>{msg_count}</code>\nCurrent skip_no: <code>{new_skip_no}</code>\nLast edited at {ISTIME}")
+                    await m.edit(text=f"Total Indexed: <code>{msg_count}</code>\nCurrent skip_no: <code>{new_skip_no}</code>\nDeleted Msg skip: {deleted}\nLast edited at {ISTIME}")
                     mcount -= 100
                 except FloodWait as e:
                     logger.info(f"Floodwait {e.value}")  
