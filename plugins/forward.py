@@ -50,7 +50,7 @@ async def forward(bot, message):
         data = await get_search_results()
         for msg in data:
             channel=msg.channel
-            file_id=msg.id_s
+            file_id=msg.id
             message_id=msg.message_id
             caption = msg.caption
             file_type = msg.file_type
