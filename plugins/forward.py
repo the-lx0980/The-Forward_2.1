@@ -57,39 +57,20 @@ async def forward(bot, message):
             file_type = msg.file_type
             chat_id=Config.TO_CHANNEL
             try:
-                if file_type == "media":
-                    try:
-                        await bot.send_cached_media(
-                            chat_id=chat_id,
-                            file_id=file_id,
-                            caption=caption
-                        )
-                    except FloodWait as e:
-                        await asyncio.sleep(e.value)
-                        await bot.send_cached_media(
-                            chat_id=chat_id,
-                            file_id=file_id,
-                            caption=caption
-                        )               
-                    await asyncio.sleep(1)
-                else:
-                    try:                        
-                        await bot.copy_message(
-                            chat_id=chat_id,
-                            from_chat_id=channel,  
-                            caption=caption,
-                            message_id=message_id,
-                            parse_mode=enums.ParseMode.MARKDOWN
-                        )
-                    except FloodWait as e:
-                        await asyncio.sleep(e.value)
-                        await bot.copy_message(
-                            chat_id=chat_id,
-                            from_chat_id=channel,
-                            parse_mode=enums.ParseMode.MARKDOWN,
-                            caption=caption,
-                            message_id=message_id
-                        )
+                try:
+                    await bot.send_cached_media(
+                        chat_id=to_chat,
+                        file_id=file_id,
+                        caption=caption
+                    )
+                except FloodWait as e:
+                    await asyncio.sleep(e.value)
+                    await bot.send_cached_media(
+                        chat_id=to_chat,
+                        file_id=file_id,
+                        caption=caption
+                    )               
+                await asyncio.sleep(1)
                 try:
                     status.add(1)
                 except:
@@ -99,10 +80,8 @@ async def forward(bot, message):
                 pass
 
             await Data.collection.delete_one({
-                'channel': channel,
-                'message_id': message_id,
-                'file_type': file_type,
-                'use': "forward"
+                'to_chat': to_chat,
+                'use': 'forward'
                 })
 
             MessageCount += 1
