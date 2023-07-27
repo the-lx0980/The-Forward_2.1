@@ -13,10 +13,9 @@ from database import save_data
 
 logger = logging.getLogger(__name__)
 
-end_msg_id = ""
-skip_no = ""
-caption = ""
-channel_id_ = ""
+CHANNEL = {}
+SKIN_NO = {}
+END_MSG_ID = {}
 IST = pytz.timezone('Asia/Kolkata')
 OWNER = int(Config.OWNER_ID)
 
@@ -50,7 +49,7 @@ async def run(bot, message):
     except Exception as e:
         logger.exception(e)
         return await message.reply(f"{e}")
-    channel_id_= chat.username
+    CHANNEL[message.from_user.id] = chat.username 
     
 
     while True:
@@ -66,29 +65,10 @@ async def run(bot, message):
             return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
 
         try:
-            skip_no = int(SKIP.text)
+            SKIN_NO[message.from_user.id] = int(SKIP.text)
             break
         except ValueError:
             await SKIP.reply_text("That's an invalid ID. It should be an integer.")
-            continue
-
-    while True:
-        try:
-            LIMIT = await bot.ask(
-                text="Send me from Upto what extent(LIMIT) do you want to Index\nSend 0 for all messages.",
-                chat_id=message.from_user.id,
-                filters=filters.text,
-                timeout=30
-            )
-            logger.info(LIMIT.text)
-        except TimeoutError:
-            return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
-
-        try:
-            limit_no = int(LIMIT.text)
-            break
-        except ValueError:
-            await LIMIT.reply_text("That's an invalid ID. It should be an integer.")
             continue
 
     while True:
@@ -104,7 +84,7 @@ async def run(bot, message):
             return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
 
         try:
-            end_msg_id = int(end_id.text)
+            END_MSG_ID[message.from_user.id] = int(end_id.text)
             break
         except ValueError:
             await end_id.reply_text("That's an invalid ID. It should be an integer.")
@@ -148,46 +128,22 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     caption = None
     await query.message.delete()
 
-    while True:
-        try:
-            get_caption = await bot.ask(
-                text="Do you need a custom caption?\n\nIf yes, send me the caption.\n\nIf No, send '0'",
-                chat_id=query.from_user.id,
-                filters=filters.text,
-                timeout=30
-            )
-        except TimeoutError:
-            await bot.send_message(query.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
-            return
-
-        input_caption = get_caption.text
-        if input_caption == "0":
-            caption = None
-        else:
-            caption = input_caption
-        break
-
     m = await bot.send_message(
         text="Indexing Started",
         chat_id=query.from_user.id
     )
-
+    user_id = query.from_user.id
     msg_count = 0
     mcount = 0
-    FROM=str(channel_id_)
-    lst_msg_id=end_msg_id
-    chat=FROM
-    CURRENT=int(skip_no)
+    lst_msg_id=END_MSG_ID.get(user_id)
+    chat=CHANNEL.get(user_id)
+    CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
+    channel=chat
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
                 continue
-            msg_caption = ""
-            if caption is not None:
-                msg_caption = caption
-            elif msg.caption:
-                msg_caption = msg.caption
-
+            msg_caption = msg.caption
             if filter in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
                 media = getattr(msg, msg.media.value, None)
                 if media is not None:
@@ -205,7 +161,6 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     file_type = "others"
 
             message_id = msg.id
-
             try:
                 await save_data(id, channel, message_id, msg_caption, file_type)
             except Exception as e:
