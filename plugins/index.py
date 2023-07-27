@@ -1,19 +1,17 @@
+import re
 import pytz
+import logging
 from datetime import datetime
 from pyrogram import Client, filters
 from pyrogram.enums import MessageMediaType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.errors import FloodWait
-from pyrogram.errors.exceptions.bad_request_400 import InviteHashExpired, UserAlreadyParticipant
 from config import Config
-import re
 from bot import Bot
 from asyncio.exceptions import TimeoutError
 from database import save_data
-import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
 
 end_msg_id = ""
 skip_no = ""
@@ -80,7 +78,7 @@ async def run(bot, message):
                 filters=filters.text,
                 timeout=30
             )
-            print(LIMIT.text)
+            logger.info(LIMIT.text)
         except TimeoutError:
             return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
 
@@ -99,7 +97,7 @@ async def run(bot, message):
                 filters=filters.text,
                 timeout=30
             )
-            print(end_id.text)
+            logger.info(end_id.text)
         except TimeoutError:
             return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
 
@@ -216,7 +214,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
             msg_count += 1
             mcount += 1
             new_skip_no = str(skip_no + msg_count)
-            print(f"Total Indexed: {msg_count} - Current SKIP_NO: {new_skip_no}")
+            logger.info(f"Total Indexed: {msg_count} - Current SKIP_NO: {new_skip_no}")
 
             if mcount == 100:
                 try:
@@ -225,7 +223,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     await m.edit(text=f"Total Indexed: <code>{msg_count}</code>\nCurrent skip_no: <code>{new_skip_no}</code>\nLast edited at {ISTIME}")
                     mcount -= 100
                 except FloodWait as e:
-                    print(f"Floodwait {e.value}")  
+                    logger.info(f"Floodwait {e.value}")  
                     pass
                 except Exception as e:
                     await bot.send_message(chat_id=OWNER, text=f"LOG-Error: {e}")
@@ -235,6 +233,6 @@ async def cb_handler(bot: Client, query: CallbackQuery):
         await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.")
 
     except Exception as e:
-        print(e)
+        logger.exception(e)
         await m.edit(text=f"Error: {e}")
         pass
