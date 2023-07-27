@@ -55,53 +55,47 @@ async def forward(bot, message):
             caption = msg.caption
             file_type = msg.file_type
             chat_id=Config.TO_CHANNEL
-
             try:
-                if file_type in (enums.MessageMediaTyp.DOCUMENT,
+                if file_type in [enums.MessageMediaTyp.DOCUMENT, 
                                  enums.MessageMediaTyp.VIDEO, 
                                  enums.MessageMediaTyp.AUDIO, 
-                                 enums.MessageMediaTyp.PHOTO):
-                    await bot.send_cached_media(
-                        chat_id=chat_id,
-                        file_id=file_id,
-                        caption=caption
-                    )
+                                 enums.MessageMediaTyp.PHOTO]: 
+                    try:
+                        await bot.send_cached_media(
+                            chat_id=chat_id,
+                            file_id=file_id,
+                            caption=caption
+                        )
+                    except FloodWait as e:
+                        await asyncio.sleep(e.value)
+                        await bot.send_cached_media(
+                            chat_id=chat_id,
+                            file_id=file_id,
+                            caption=caption
+                        )               
+                    await asyncio.sleep(1)
                 else:
-                    await bot.copy_message(
-                        chat_id=chat_id,
-                        from_chat_id=channel,
-                        parse_mode=enums.ParseMode.MARKDOWN,
-                        caption=caption,
-                        message_id=message_id
-                    )
-                await asyncio.sleep(1)
-
+                    try:                        
+                        await bot.copy_message(
+                            chat_id=chat_id,
+                            from_chat_id=channel,
+                            parse_mode=enums.ParseMode.MARKDOWN,
+                            caption=caption,
+                            message_id=message_id
+                        )
+                    except FloodWait as e:
+                        await asyncio.sleep(e.value)
+                        await bot.copy_message(
+                            chat_id=chat_id,
+                            from_chat_id=channel,
+                            parse_mode=enums.ParseMode.MARKDOWN,
+                            caption=caption,
+                            message_id=message_id
+                        )
                 try:
                     status.add(1)
                 except:
                     pass
-
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-                if file_type in (enums.MessageMediaTyp.DOCUMENT, 
-                                 enums.MessageMediaTyp.VIDEO, 
-                                 enums.MessageMediaTyp.AUDIO, 
-                                 enums.MessageMediaTyp.PHOTO):
-                    await bot.send_cached_media(
-                        chat_id=chat_id,
-                        file_id=file_id,
-                        caption=caption
-                    )
-                else:
-                    await bot.copy_message(
-                        chat_id=chat_id,
-                        from_chat_id=channel,
-                        parse_mode=enums.ParseMode.MARKDOWN,
-                        caption=caption,
-                        message_id=message_id
-                    )
-                await asyncio.sleep(1)
-
             except Exception as e:
                 logger.exception(e)
                 pass
