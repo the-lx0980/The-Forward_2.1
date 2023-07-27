@@ -33,16 +33,25 @@ async def run(bot, message):
             await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
             return
 
-        source = chat.text.strip()
-        chat = await bot.get_chat(source)
-        chat_id = chat.username
-        if not chat_id:
-            await chat.reply_text("invalid username, chek username and send Again without @")
+        pattern=".*https://t.me/.*"
+        result = re.match(pattern, channel, flags=re.IGNORECASE)
+        if result:
+            print(channel)
+            break
+        else:
+            await chat.reply_text("Wrong URL")
             continue
-        
 
+
+    channel_id = re.search(r"t.me.(.*)", channel)
+    chat_usr = channel_id.group(1)
+    try:
+        chat = await bot.get_chat(chat_usr)
+    Exception as e:
+        logger.exception(e)
+        return await message.reply(f"{e}")
+    channel_id_= chat.username
     
-    channel_id_=chat_id
 
     while True:
         try:
