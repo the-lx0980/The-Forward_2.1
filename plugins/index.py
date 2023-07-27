@@ -26,7 +26,7 @@ async def run(bot, message):
         return
     while True:
         try:
-            chat = await bot.ask(text = "To Index a channel you may send me the channel username without @", chat_id = message.from_user.id, filters=filters.text, timeout=30)
+            chat = await bot.ask(text = "To Index a channel send me public channel link like <code>https://t.me/xxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
             channel=chat.text
         except TimeoutError:
             await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
