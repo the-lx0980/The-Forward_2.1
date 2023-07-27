@@ -35,15 +35,14 @@ async def save_data(id, caption,):
         )
     except ValidationError:
         logger.exception('Error occurred while saving file in database')
-    try:
-        await data.commit()
-    except DuplicateKeyError:
-        logger.warning("Already saved in Database")
     else:
         try:
+            await data.commit()
+        except DuplicateKeyError:
+            logger.warning("Already saved in Database")
+        else:
             logger.info("Messsage saved in DB")
-        except:
-            pass
+
 
 async def get_search_results():
     filter = {'use': "forward"}
