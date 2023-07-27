@@ -72,14 +72,14 @@ async def forward(bot, message):
                             caption=caption
                         )               
                     await asyncio.sleep(1)
-                if file_type == "others":
+                else:
                     try:                        
                         await bot.copy_message(
                             chat_id=chat_id,
-                            from_chat_id=channel,
-                            parse_mode=enums.ParseMode.MARKDOWN,
+                            from_chat_id=channel,  
                             caption=caption,
-                            message_id=message_id
+                            message_id=message_id,
+                            parse_mode=enums.ParseMode.MARKDOWN
                         )
                     except FloodWait as e:
                         await asyncio.sleep(e.value)
