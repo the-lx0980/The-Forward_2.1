@@ -165,7 +165,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
 
             msg_count += 1
             mcount += 1
-            new_skip_no = str(skip_no + msg_count)
+            new_skip_no = str(CURRENT + msg_count)
             logger.info(f"Total Indexed: {msg_count} - Current SKIP_NO: {new_skip_no}")
 
             if mcount == 100:
