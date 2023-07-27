@@ -27,24 +27,22 @@ async def run(bot, message):
         return
     while True:
         try:
-            chat = await bot.ask(text = "To Index a channel you may send me the channel invite link, so that I can join channel and index the files.\n\nIt should be something like <code>https://t.me/xxxxxx</code> or <code>https://t.me/joinchat/xxxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
+            chat = await bot.ask(text = "To Index a channel you may send me the channel username without @", chat_id = message.from_user.id, filters=filters.text, timeout=30)
             channel=chat.text
         except TimeoutError:
             await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
             return
 
-        pattern=".*https://t.me/.*"
-        result = re.match(pattern, channel, flags=re.IGNORECASE)
-        if result:
-            print(channel)
-            break
-        else:
-            await chat.reply_text("Wrong URL")
+        source = chat.text.strip()
+        chat = await bot.get_chat(source)
+        chat_id = chat.username
+        if not chat_id:
+            await chat.reply_text("invalid username, chek username and send Again without @")
             continue
+        
 
-        channel_id = re.search(r"t.me.(.*)", channel)
-        #global channel_id_
-        channel_id_=channel_id.group(1)
+    
+    channel_id_=chat_id
 
     while True:
         try:
@@ -167,14 +165,14 @@ async def cb_handler(bot: Client, query: CallbackQuery):
 
     msg_count = 0
     mcount = 0
-    FROM = channel_id_
-    lst_msg_id = end_msg_id
-
+    FROM=str(channel_id_)
+    lst_msg_id=end_msg_id
+    chat=FROM
+    CURRENT=int(skip_no)
     try:
-        async for msg in bot.iter_messages(FROM, lst_msg_id, skip_no):
+        async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
                 continue
-
             msg_caption = ""
             if caption is not None:
                 msg_caption = caption
@@ -188,9 +186,9 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     id = media.file_id
             elif filter == "empty":
                 for media_type in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]:
-                    media = getattr(msg, media_type.value, None)
+                    media = getattr(msg, msg.media.value, None)
                     if media is not None:
-                        file_type = media_type.value
+                        file_type = msg.media.value
                         id = media.file_id
                         break
                 else:
