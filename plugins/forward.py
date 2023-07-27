@@ -56,10 +56,7 @@ async def forward(bot, message):
             file_type = msg.file_type
             chat_id=Config.TO_CHANNEL
             try:
-                if file_type in [enums.MessageMediaTyp.DOCUMENT, 
-                                 enums.MessageMediaTyp.VIDEO, 
-                                 enums.MessageMediaTyp.AUDIO, 
-                                 enums.MessageMediaTyp.PHOTO]: 
+                if file_type == "media":
                     try:
                         await bot.send_cached_media(
                             chat_id=chat_id,
@@ -74,7 +71,7 @@ async def forward(bot, message):
                             caption=caption
                         )               
                     await asyncio.sleep(1)
-                else:
+                if file_type == "others":
                     try:                        
                         await bot.copy_message(
                             chat_id=chat_id,
