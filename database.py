@@ -23,7 +23,7 @@ class Data(Document):
  #   id_s = fields.StrField(required=True)
     channel = fields.StrField(required=True)
     file_type = fields.StrField(required=True)
-    message_id = fields.IntField(required=True)
+    message_id = fields.IntField(allow_none=True)
     use = fields.StrField(required=True)
     caption = fields.StrField(required=True)
 
