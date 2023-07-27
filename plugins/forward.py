@@ -1,6 +1,6 @@
 from config import Config
 from pyrogram import Client, filters, enums
-from database import get_search_results, collection
+from database import get_search_results, Data
 import asyncio
 from pyrogram.errors import FloodWait
 import random
@@ -50,13 +50,12 @@ async def forward(bot, message):
     while await Data.count_documents() != 0:
         data = await get_search_results()
         for msg in data:
-            channel = msg.channel
-            file_id = msg.id
-            message_id = msg.message_id
-            method = "bot"
+            channel=msg.channel
+            file_id=msg.id
+            message_id=msg.message_id
             caption = msg.caption
             file_type = msg.file_type
-            chat_id = Config.TO_CHANNEL
+            chat_id=Config.TO_CHANNEL
 
             try:
                 if file_type in (enums.MessageMediaTyp.DOCUMENT,
@@ -108,12 +107,12 @@ async def forward(bot, message):
                 print(e)
                 pass
 
-            await collection.delete_one({
-                'channel': channel,
-                'message_id': message_id,
-                'file_type': file_type,
-                'use': "forward"
-            })
+            await Data.collection.delete_one({
+                    'channel': channel,
+                    'message_id': message_id,
+                    'file_type': file_type,
+                    'use': "forward"
+                    })
 
             MessageCount += 1
 
