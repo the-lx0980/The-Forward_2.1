@@ -23,33 +23,28 @@ OWNER = int(Config.OWNER_ID)
 @Client.on_message(filters.private & filters.command(["index"]))
 async def run(bot, message):
     if message.from_user.id != OWNER:
-        return await message.reply_text("Who the hell are you!!")
-
+        await message.reply_text("Who the hell are you!!")
+        return
     while True:
         try:
-            chat = await bot.ask(
-                text="To index a channel, you may send me the channel invite link so that I can join the channel and index the files.\n\nIt should be something like <code>https://t.me/xxxxxx</code> or <code>https://t.me/joinchat/xxxxxx</code>",
-                chat_id=message.from_user.id,
-                filters=filters.text,
-                timeout=30
-            )
-            channel = chat.text
+            chat = await bot.ask(text = "To Index a channel you may send me the channel invite link, so that I can join channel and index the files.\n\nIt should be something like <code>https://t.me/xxxxxx</code> or <code>https://t.me/joinchat/xxxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
+            channel=chat.text
         except TimeoutError:
-            return await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
+            await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
+            return
 
-        if "t.me/+" in channel:
-            return await message.reply_text("Send Public Channel Link, Not Private!")
-
-        pattern = ".*https://t.me/.*"
+        pattern=".*https://t.me/.*"
         result = re.match(pattern, channel, flags=re.IGNORECASE)
         if result:
-            logger.info(channel)
+            print(channel)
             break
         else:
             await chat.reply_text("Wrong URL")
             continue
 
-    channel_id_ = channel.split("t.me/")[1]
+        channel_id = re.search(r"t.me.(.*)", channel)
+        #global channel_id_
+        channel_id_=channel_id.group(1)
 
     while True:
         try:
