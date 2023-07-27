@@ -154,7 +154,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     id=media.file_id
                     file_type="media"
                 if not msg.media:        
-                    id=None
+                    id="Bxbdhu737bbhdhue"
                     file_type="others"
                     message_id=msg.id
                                 
