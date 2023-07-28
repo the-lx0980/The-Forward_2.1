@@ -20,19 +20,19 @@ buttons=InlineKeyboardMarkup(
         ]
         )
 
+
 @Client.on_message(filters.private & filters.command('start'))
 async def start(client, message):
     await client.send_message(
         chat_id=message.chat.id,
-        text=START_MSG.format(
-                message.from_user.first_name),
-        reply_markup=buttons,
-        parse_mode="html")
+        text=START_MSG.format(message.from_user.mention),  
+        reply_markup=buttons
+    )
+
 
 
 @Client.on_message(filters.command("stop"))
 async def stop_button(bot, message):
-
     if str(message.from_user.id) not in Config.OWNER_ID:
         return
     msg = await bot.send_message(
@@ -48,8 +48,8 @@ async def stop_button(bot, message):
 async def help(client, message):
     await client.send_message(
         chat_id=message.chat.id,
-        text=HELP_MSG,
-        parse_mode="html")
+        text=HELP_MSG
+    )
 
 
 @Client.on_callback_query(filters.regex(r'^help$'))
