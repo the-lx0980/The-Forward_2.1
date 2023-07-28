@@ -23,8 +23,6 @@ class Data(Document):
     use = fields.StrField(required=True)
     caption = fields.StrField(allow_none=True)
     file_type = fields.StrField(required=True)
-    msg_id = fields.StrField(allow_none=True)
-
     class Meta:
         collection_name = COLLECTION_NAME
 
@@ -34,8 +32,7 @@ async def save_data(id, caption, file_type, msg_id):
             id=id,
             use = "forward",
             caption=caption,
-            file_type=file_type,
-            msg_id=msg_id
+            file_type=file_type
         )
     except ValidationError:
         logger.exception('Error occurred while saving file in database')
