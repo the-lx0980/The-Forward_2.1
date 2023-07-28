@@ -167,7 +167,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                         file_type="messages"
                         caption=msg.caption            
             try:
-                await save_data(id, caption, file_type, msg_id)
+                await save_data(id, caption, file_type)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
