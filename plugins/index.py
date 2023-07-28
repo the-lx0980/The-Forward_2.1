@@ -92,7 +92,9 @@ async def run(bot, message):
 
     buttons = InlineKeyboardMarkup(
         [[
-            InlineKeyboardButton("Index Media", callback_data="index")
+            InlineKeyboardButton("Index Only Media", callback_data="index")
+        ],[
+            InlineKeyboardButton("Index Msg & Media", callback_data="allmsg")
         ],[
             InlineKeyboardButton("Cancel", callback_data="cancel"),  
         ]]
@@ -109,6 +111,8 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     filter = ""
     if query.data == "index":
         filter = "media"
+    elif query.data == "allmsg":
+        filter = "allmsg"
     elif query.data == "cancel":
         return await query.message.delete()
         
