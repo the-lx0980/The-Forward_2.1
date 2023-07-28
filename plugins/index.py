@@ -126,6 +126,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     lst_msg_id=END_MSG_ID.get(user_id)
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
+    id=None
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
@@ -155,9 +156,16 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                         media = getattr(msg, msg.media.value, None)
                         id=media.file_id
                         file_type="media"
-            if not msg.media:
-                msg_id = msg.id
-                file_type="messages" 
+            if filter == "allmsg":
+                if msg.media:
+                    if msg.media in [MessageMediaType.DOCUMENT, MessageMediaType.VIDEO, MessageMediaType.AUDIO, MessageMediaType.PHOTO]: 
+                        media = getattr(msg, msg.media.value, None)
+                        id=media.file_id
+                        file_type="media"
+                if not msg.media:
+                    if msg.caption:
+                        file_type="messages"
+                        caption=msg.caption            
             try:
                 await save_data(id, caption, file_type, msg_id)
             except Exception as e:
