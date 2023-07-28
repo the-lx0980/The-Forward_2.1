@@ -19,19 +19,23 @@ instance = Instance.from_db(database)
 
 @instance.register
 class Data(Document):
-    id = fields.StrField(attribute='_id', required=True)
+    id = fields.StrField(attribute='_id', allow_none=True)
     use = fields.StrField(required=True)
-    caption = fields.StrField(required=True)
+    caption = fields.StrField(allow_none=True)
+    file_type = fields.StrField(required=True)
+    msg_id = fields.StrField(allow_none=True)
 
     class Meta:
         collection_name = COLLECTION_NAME
 
-async def save_data(id, caption):
+async def save_data(id, caption, file_type, msg_id):
     try:
         data = Data(
             id=id,
             use = "forward",
-            caption=caption          
+            caption=caption,
+            file_type=file_type,
+            msg_id=msg_id
         )
     except ValidationError:
         logger.exception('Error occurred while saving file in database')
