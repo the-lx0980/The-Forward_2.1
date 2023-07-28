@@ -26,7 +26,7 @@ class Data(Document):
     class Meta:
         collection_name = COLLECTION_NAME
 
-async def save_data(id, caption, file_type, msg_id):
+async def save_data(id, caption, file_type):
     try:
         data = Data(
             id=id,
