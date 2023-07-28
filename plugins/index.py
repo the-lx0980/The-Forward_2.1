@@ -126,7 +126,6 @@ async def cb_handler(bot: Client, query: CallbackQuery):
     msg_count = 0
     mcount = 0
     deleted = 0
-    unsupported = 0
     lst_msg_id=END_MSG_ID.get(user_id)
     chat=CHANNEL.get(user_id)
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
@@ -135,9 +134,6 @@ async def cb_handler(bot: Client, query: CallbackQuery):
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
                 deleted += 1
-                continue
-            if not msg.media:
-                unsupported += 1
                 continue
             if msg.video:
                 file_name = msg.video.file_name
@@ -166,10 +162,10 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                         media = getattr(msg, msg.media.value, None)
                         id=media.file_id
                         file_type="media"
-                if not msg.media:
+                else:
                     if msg.caption:
                         file_type="messages"
-                        caption=msg.caption            
+                        caption=msg.caption
             try:
                 await save_data(id, caption, file_type)
             except Exception as e:
@@ -196,7 +192,7 @@ async def cb_handler(bot: Client, query: CallbackQuery):
                     logger.exception(e)
                     pass
 
-        await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.\n\nNon Media Files: {unsupported}\nDeleted Message: {deleted}")
+        await m.edit(f"Succesfully Indexed <code>{msg_count}</code> messages.\n\nDeleted Message: {deleted}")
 
     except Exception as e:
         logger.exception(e)
