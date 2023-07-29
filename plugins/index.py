@@ -89,10 +89,24 @@ async def run(bot, message):
         except ValueError:
             await end_id.reply_text("That's an invalid ID. It should be an integer.")
             continue
+    try:
+        approvel = await bot.ask(
+            text="Send me  allmsgs or smedia\n\nallmsgs = index all messages\nsmedia = index only media",
+            chat_id=message.from_user.id,
+            filters=filters.text,
+            timeout=30
+        )
+    approve = approvel.text.lower()
+    if approve == "smedia":
+        filter = "media"
+    elif approve == "allmsgs":
+        filter = "allmsg"
+    else:
+        return  
     user_id = message.from_user.id
-    await index_messages(bot, user_id) 
+    await index_messages(bot, user_id, filter) 
 
-async def index_messages(bot, user_id):        
+async def index_messages(bot, user_id, filter):        
     m = await bot.send_message(
         text="Indexing Started",
         chat_id=user_id
@@ -108,6 +122,8 @@ async def index_messages(bot, user_id):
         pass
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
     id=None
+    message_id=None
+    channel_id=None
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
@@ -141,11 +157,10 @@ async def index_messages(bot, user_id):
                         id=media.file_id
                         file_type="media"
                 else:
-                    if msg.caption:
-                        file_type="messages"
-                        caption=msg.caption
-                        channel_id=
-                        message_id=msg.id
+                    file_type="messages"
+                    caption=msg.caption
+                    channel_id=chat
+                    message_id=msg.id
             try:
                 await save_data(id, caption, file_type, channel_id, message_id)
             except Exception as e:
