@@ -145,7 +145,7 @@ async def index_messages(bot, user_id, filter):
             else:
                 m_caption = file_name
             if not m_caption:
-                m_caption = "No Caption"
+                m_caption = "None"
             caption = m_caption
             if filter == "media":
                 if msg.media:
