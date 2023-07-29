@@ -89,40 +89,14 @@ async def run(bot, message):
         except ValueError:
             await end_id.reply_text("That's an invalid ID. It should be an integer.")
             continue
+    user_id = message.from_user.id
+    await index_messages(bot, user_id) 
 
-    buttons = InlineKeyboardMarkup(
-        [[
-            InlineKeyboardButton("Index Only Media", callback_data="index")
-        ],[
-            InlineKeyboardButton("Index Msg & Media", callback_data="allmsg")
-        ],[
-            InlineKeyboardButton("Cancel", callback_data="cancel"),  
-        ]]
-    )
-
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text=f"Ok,\nNow choose what type of messages you want to forward.",
-        reply_markup=buttons
-    )
-
-@Client.on_callback_query()
-async def cb_handler(bot: Client, query: CallbackQuery):
-    filter = ""
-    if query.data == "index":
-        filter = "media"
-    elif query.data == "allmsg":
-        filter = "allmsg"
-    elif query.data == "cancel":
-        return await query.message.delete()
-        
-    await query.message.delete()
-
+async def index_messages(bot, user_id):        
     m = await bot.send_message(
         text="Indexing Started",
-        chat_id=query.from_user.id
+        chat_id=user_id
     )
-    user_id = query.from_user.id
     msg_count = 0
     mcount = 0
     deleted = 0
