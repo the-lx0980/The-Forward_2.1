@@ -26,14 +26,14 @@ async def run(bot, message):
         return
     while True:
         try:
-            chat = await bot.ask(text = "To Index a channel send me public channel link like <code>https://t.me/xxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
+            chat = await bot.ask(text = "To Index a channel send me channel id like <code>https://t.me/xxxxx</code>", chat_id = message.from_user.id, filters=filters.text, timeout=30)
             channel=chat.text
         except TimeoutError:
             await bot.send_message(message.from_user.id, "Error!!\n\nRequest timed out.\nRestart by using /index")
             return
 
-        pattern=".*https://t.me/.*"
-        result = re.match(pattern, channel, flags=re.IGNORECASE)
+        if "-100" in chat.text:
+            result = "result"
         if result:
             print(channel)
             break
@@ -42,14 +42,14 @@ async def run(bot, message):
             continue
 
 
-    channel_id = re.search(r"t.me.(.*)", channel)
-    chat_usr = channel_id.group(1)
+    #channel_id = re.search(r"t.me.(.*)", channel)
+    #chat_usr = channel_id.group(1)
     try:
-        chat = await bot.get_chat(chat_usr)
+        chat = await bot.get_chat(int(chat.text))
     except Exception as e:
         logger.exception(e)
         return await message.reply(f"{e}")
-    CHANNEL[message.from_user.id] = chat.username 
+    CHANNEL[message.from_user.id] = chat.username if chat.username else chat.id
     
 
     while True:
@@ -101,7 +101,11 @@ async def index_messages(bot, user_id):
     mcount = 0
     deleted = 0
     lst_msg_id=END_MSG_ID.get(user_id)
-    chat=CHANNEL.get(user_id)
+    try:
+        chat=int(CHANNEL.get(user_id))
+    except:
+        chat=CHANNEL.get(user_id)
+        pass
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
     id=None
     try:
@@ -140,8 +144,10 @@ async def index_messages(bot, user_id):
                     if msg.caption:
                         file_type="messages"
                         caption=msg.caption
+                        channel_id=
+                        message_id=msg.id
             try:
-                await save_data(id, caption, file_type)
+                await save_data(id, caption, file_type, channel_id, message_id)
             except Exception as e:
                 logger.exception(e)
                 await bot.send_message(OWNER, f"LOG-Error-{e}")
