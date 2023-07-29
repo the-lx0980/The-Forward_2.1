@@ -96,6 +96,9 @@ async def run(bot, message):
             filters=filters.text,
             timeout=30
         )
+    except Exception as e:
+        logger.exception(e)
+        pass
     approve = approvel.text.lower()
     if approve == "smedia":
         filter = "media"
