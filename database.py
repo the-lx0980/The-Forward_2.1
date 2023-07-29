@@ -19,7 +19,7 @@ instance = Instance.from_db(database)
 
 @instance.register
 class Data(Document):
-    id = fields.StrField(attribute='_id', allow_none=True)
+    id = fields.StrField(attribute='_id')
     use = fields.StrField(required=True)
     caption = fields.StrField(allow_none=True)
     file_type = fields.StrField(required=True)
