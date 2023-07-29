@@ -5,4 +5,4 @@ class Config:
     TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "") 
     OWNER_ID = set(int(x) for x in os.environ.get("OWNER_ID", "").split())
     DATABASE_URI = os.environ.get("DATABASE_URI", "")
-    TO_CHANNEL = -1001592628992
+    TO_CHANNEL = -1001819186027
