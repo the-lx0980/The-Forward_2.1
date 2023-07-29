@@ -160,10 +160,11 @@ async def index_messages(bot, user_id, filter):
                         id=media.file_id
                         file_type="media"
                 else:
-                    file_type="messages"
-                    caption=msg.caption
-                    channel_id=chat
-                    message_id=msg.id
+                    if msg.caption:
+                        file_type="messages"
+                        caption=msg.caption
+                        channel_id=chat
+                        message_id=msg.id
             try:
                 await save_data(id, caption, file_type, channel_id, message_id)
             except Exception as e:
