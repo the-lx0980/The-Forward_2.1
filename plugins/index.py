@@ -124,9 +124,9 @@ async def index_messages(bot, user_id, filter):
         chat=CHANNEL.get(user_id)
         pass
     CURRENT=SKIN_NO.get(user_id) if SKIN_NO.get(user_id) else 0
-    id=None
-    message_id=None
-    channel_id=None
+    id="bdhfhdhjdj73737"
+    message_id=7273683
+    channel_id=chat
     try:
         async for msg in bot.iter_messages(chat, lst_msg_id, CURRENT):
             if msg.empty:
