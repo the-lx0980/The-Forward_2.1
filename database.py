@@ -23,8 +23,8 @@ class Data(Document):
     use = fields.StrField(required=True)
     caption = fields.StrField(allow_none=True)
     file_type = fields.StrField(required=True)
-    channel_id = = fields.StrField(allow_none=True)
-    message_id = = fields.StrField(allow_none=True)
+    channel_id = fields.StrField(allow_none=True)
+    message_id = fields.StrField(allow_none=True)
     class Meta:
         collection_name = COLLECTION_NAME
 
