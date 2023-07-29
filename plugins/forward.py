@@ -11,7 +11,7 @@ IST = pytz.timezone('Asia/Kolkata')
 MessageCount = 0
 BOT_STATUS = "0"
 status = set(int(x) for x in BOT_STATUS.split())
-OWNER = int(Config.OWNER_ID)
+OWNER = Config.OWNER_ID
 
 @Client.on_message(filters.command("status"))
 async def count(bot, m):
@@ -22,6 +22,8 @@ async def count(bot, m):
 
 @Client.on_message(filters.command('total'))
 async def total(bot, message):
+    if message.from_user.id not in OWNER:
+        return await message.reply_text("Who the hell are you!!")
     msg = await message.reply("Counting total messages in DB...", quote=True)
     try:
         total = await Data.count_documents()
@@ -31,6 +33,8 @@ async def total(bot, message):
 
 @Client.on_message(filters.command('cleardb'))
 async def clrdb(bot, message):
+    if message.from_user.id not in OWNER:
+        return await message.reply_text("Who the hell are you!!")
     msg = await message.reply("Clearing files from DB...", quote=True)
     try:
         await Data.collection.drop()
@@ -40,6 +44,8 @@ async def clrdb(bot, message):
 
 @Client.on_message(filters.command("forward"))
 async def forward(bot, message):
+    if message.from_user.id not in OWNER:
+        return await message.reply_text("Who the hell are you!!")
     global MessageCount
     if 1 in status:
         await message.reply_text("A task is already running.")
