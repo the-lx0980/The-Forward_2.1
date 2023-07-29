@@ -17,11 +17,11 @@ CHANNEL = {}
 SKIN_NO = {}
 END_MSG_ID = {}
 IST = pytz.timezone('Asia/Kolkata')
-OWNER = int(Config.OWNER_ID)
+OWNER = Config.OWNER_ID
 
 @Client.on_message(filters.private & filters.command(["index"]))
 async def run(bot, message):
-    if message.from_user.id != OWNER:
+    if message.from_user.id not in OWNER:
         await message.reply_text("Who the hell are you!!")
         return
     while True:
