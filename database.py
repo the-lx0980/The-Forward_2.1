@@ -23,16 +23,20 @@ class Data(Document):
     use = fields.StrField(required=True)
     caption = fields.StrField(allow_none=True)
     file_type = fields.StrField(required=True)
+    channel_id = = fields.StrField(allow_none=True)
+    message_id = = fields.StrField(allow_none=True)
     class Meta:
         collection_name = COLLECTION_NAME
 
-async def save_data(id, caption, file_type):
+async def save_data(id, caption, file_type, channel_id, message_id):
     try:
         data = Data(
             id=id,
             use = "forward",
             caption=caption,
-            file_type=file_type
+            file_type=file_type,
+            channel_id=channel_id,
+            message_id=message_id
         )
     except ValidationError:
         logger.exception('Error occurred while saving file in database')
