@@ -44,14 +44,14 @@ async def clrdb(bot, message):
 
 @Client.on_message(filters.command("forward"))
 async def forward(bot, message):
+    global MessageCount
     if message.from_user.id not in OWNER:
         return await message.reply_text("Who the hell are you!!")
-    global MessageCount
     if 1 in status:
         await message.reply_text("A task is already running.")
         return
 
-    m = await bot.send_message(chat_id=OWNER, text="Started Forwarding")
+    m = await bot.send_message(chat_id=message.from_user.id, text="Started Forwarding....")
 
     while await Data.count_documents() != 0:
         data = await get_search_results()
