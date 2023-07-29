@@ -54,6 +54,8 @@ async def forward(bot, message):
             file_id=msg.id
             caption=msg.caption
             file_type=msg.file_type
+            channel_id=msg.channel_id
+            message_id=msg.message_id
             try:
                 if file_type == "media":
                     try:
@@ -64,7 +66,7 @@ async def forward(bot, message):
                         )
                     except FloodWait as e:
                         await asyncio.sleep(e.value)
-                        await bot.send_cached_media(
+                        await bot.copy_message(
                             chat_id=to_chat,
                             file_id=file_id,
                             caption=caption
@@ -72,15 +74,21 @@ async def forward(bot, message):
                     await asyncio.sleep(1)
                 if file_type == "messages":
                     try:
-                        await bot.send_message(
+                        await bot.copy_message(
                             chat_id=to_chat,
-                            text=caption
+                            from_chat_id=channel_id,
+                            parse_mode=enums.ParseMode.MARKDOWN,       
+                            caption=caption,
+                            message_id=message_id
                         )
                     except FloodWait as e:
                         await asyncio.sleep(e.value)
-                        await bot.send_message(
+                        await bot.copy_message(
                             chat_id=to_chat,
-                            text=caption
+                            from_chat_id=channel_id,
+                            parse_mode=enums.ParseMode.MARKDOWN,       
+                            caption=caption,
+                            message_id=message_id
                         )
                 try:
                     status.add(1)
