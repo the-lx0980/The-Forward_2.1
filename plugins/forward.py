@@ -100,7 +100,9 @@ async def forward(bot, message):
 
             await Data.collection.delete_one({
                 'use': 'forward',
-                'file_type': file_type
+                'file_type': file_type,
+                'channel_id': channel_id,
+                'message_id': message_id
                 })
 
             MessageCount += 1
