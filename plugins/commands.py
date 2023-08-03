@@ -29,7 +29,7 @@ async def start(client, message):
 
 @Client.on_message(filters.command("stop"))
 async def stop_button(bot, message):
-    if str(message.from_user.id) not in Config.OWNER_ID:
+    if message.from_user.id not in Config.OWNER_ID:
         return
     msg = await bot.send_message(
         text="Stoping all processes...",
